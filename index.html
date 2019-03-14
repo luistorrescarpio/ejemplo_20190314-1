@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Subir archivos</title>
+	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+</head>
+<body>
+
+	<input type="file" id="fileUpload" multiple>
+
+	<button onclick="subirArchivo()">Enviar</button>
+	<br>
+	
+	<progress class="subirArchivo_progress" value="0"></progress>
+
+	
+	<script>
+		
+		function subirArchivo(){
+
+			formData_post("consulta.php",{
+				action: "subirArchivo"
+				,"upload":"fileUpload"
+			},function(res){
+				console.log(res);
+			})
+
+		}
+
+	</script>
+
+	<script>
+
+		function formData_post(nameController, obj ,callback1, type){
+		// Create by: Luis Torres Carpio
+		// Version: 1.0
+		// Uso Libre 
+		// Mas complementos web en: www.micodigolibre.com
+		if(!window.base_url)
+			base_url = "";
+		formData = new FormData();
+  		formData.append("action", nameController[1]);
+  		
+  		for( i in obj ){
+  			if( i == "upload" ){
+  				console.log(obj);
+  				file = document.getElementById(obj[i]).files;
+		  		if(file.length==0){
+		  			alert("Archivo no seleccionado");
+		  			return;
+		  		}
+		  		formData.append("enctype",'multipart/form-data');
+		  		for( var j=0;j<file.length;j++ ){
+		  			formData.append(obj[i]+"[]",file[j]);
+		  			console.log("Entro!");
+		  		}
+  			}else
+  				formData.append(i, obj[i]);
+  		}
+  		
+  		type = type?"json":false;
+  		var url_file, progressName;
+  		if(nameController.indexOf("@")!=-1){
+			nameController = nameController.split('@');
+			url_file = base_url+'/controller/'+nameController[0]+'Controller.php';
+			progressName = nameController[1];
+		}else{
+			url_file = nameController;
+			progressName = obj.action;
+		}
+		var jqxhr = $.ajax({
+	      url: url_file,
+	      type: 'POST',
+	      data: formData, //adjuntamos el paquete
+	      cache: false,
+	      contentType: false,
+	      processData: false,
+
+	      // Configuración Personalizada XMLHttpRequest
+	      xhr: function() {
+	          var myXhr = $.ajaxSettings.xhr();
+	          if (myXhr.upload) {
+	              // Obtenemos Progresivamente el nivel de carga del archivo
+	              myXhr.upload.addEventListener('progress', function(e) {
+	                  if (e.lengthComputable) {
+	                    console.log(e.loaded);
+	                    //Actualizamos la etiqueta PROGRESS segun su nivel de carga del archivo
+	                      $('.'+progressName+"_progress").attr({
+	                          value: e.loaded,
+	                          max: e.total,
+	                      });
+	                  }
+	              } , false);
+	          }
+	          return myXhr;
+	      },success: function(data, status, xhr) {
+	      	if(type=="json"){
+	        	res = JSON.parse(data);
+	      		callback1(res);
+	      	}else
+	      		callback1(data);
+	        
+	      }
+	    }).done(function() {
+	      console.log("Upload finished.");
+	    });
+	}
+	</script>
+</body>
+</html>
