@@ -9,6 +9,9 @@ switch ($obj->action) {
 
 		// $fileName = basename($_FILES['fileUpload']["name"][0]);
 		$cant = count($_FILES['fileUpload']["name"]);
+		$archivos = "";
+
+
 		for($i=0;$i<$cant;$i++){
 			$ext = pathinfo($_FILES['fileUpload']["name"][$i], PATHINFO_EXTENSION);
 
@@ -17,11 +20,27 @@ switch ($obj->action) {
 
 			$filePath = $path."/".$fileName;
 
-			move_uploaded_file($_FILES['fileUpload']["tmp_name"][$i], $filePath);
+			if(move_uploaded_file($_FILES['fileUpload']["tmp_name"][$i], $filePath)){
+				query("INSERT INTO imagen (nombre,ext)VALUES('{$fileName}','{$ext}')");
+
+				if( $i > 0)
+					$archivos.=",";
+				
+				$archivos.=$fileName;
+
+			}else{
+				res([
+					"success"=>false
+					,"message"=>"Error al subir Archivos"
+				]);
+			}
 			
-			query("INSERT INTO imagen (nombre,ext)VALUES('{$fileName}','{$ext}')");
 		}
-		echo "PROCESO FINALIZADO";
+
+		res([
+			"success"=>true
+			,"archivos"=>$archivos
+		]);
 
 		break;
 

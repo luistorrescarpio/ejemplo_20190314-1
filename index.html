@@ -11,9 +11,10 @@
 
 	<button onclick="subirArchivo()">Enviar</button>
 	<br>
-	
-	<progress class="subirArchivo_progress" value="0"></progress>
 
+	<progress class="subirArchivo_progress" value="0"></progress>
+	
+	<div id="visualizacion"></div>
 	
 	<script>
 		
@@ -24,11 +25,47 @@
 				,"upload":"fileUpload"
 			},function(res){
 				console.log(res);
-			})
+				visualizarArchivosCargados(res.archivos)
+			},"json");
 
+		}
+		function visualizarArchivosCargados(archivos){
+			archivos = archivos.split(",");
+			for( i in archivos ){
+				ext = archivos[i].split(".")[1];
+				switch(ext) {
+					case 'png':
+					case 'jpg':
+						archivo = '<img src="archivos/'+archivos[i]+'">';
+						break;
+					case 'pdf':
+						archivo = '<iframe src="archivos/'+archivos[i]+'" style="width:600px; height:500px;" frameborder="0"></iframe>';
+						break;
+					case 'mp4':
+						archivo = '<video width="320" height="240" controls> <source src="archivos/'+archivos[i]+'" type="video/mp4"> Your browser does not support the video tag.</video>';
+						break;
+				}
+				
+				$("#visualizacion").append(archivo);
+			}
 		}
 
 	</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	<script>
 
