@@ -109,24 +109,17 @@
 		var jqxhr = $.ajax({
 	      url: url_file,
 	      type: 'POST',
-	      data: formData, //adjuntamos el paquete
+	      data: formData,
 	      cache: false,
 	      contentType: false,
 	      processData: false,
-
-	      // Configuración Personalizada XMLHttpRequest
 	      xhr: function() {
 	          var myXhr = $.ajaxSettings.xhr();
 	          if (myXhr.upload) {
-	              // Obtenemos Progresivamente el nivel de carga del archivo
 	              myXhr.upload.addEventListener('progress', function(e) {
 	                  if (e.lengthComputable) {
 	                    console.log(e.loaded);
-	                    //Actualizamos la etiqueta PROGRESS segun su nivel de carga del archivo
-	                      $('.'+progressName+"_progress").attr({
-	                          value: e.loaded,
-	                          max: e.total,
-	                      });
+	                      $('.'+progressName+"_progress").attr({value: e.loaded,max: e.total});
 	                  }
 	              } , false);
 	          }
